@@ -54,11 +54,26 @@ export const getAllInterviewReports = async () => {
 }
 
 export const downloadResumePdf = async (interviewReportId) => {
-    const response = await api.post(
-        `/api/interview/resume/pdf/${interviewReportId}`,
-        {},
-        { responseType: "blob" }
-    )
+    try {
+        const response = await api.post(
+            `/api/interview/resume/pdf/${interviewReportId}`,
+            {},
+            { responseType: "blob" }
+        )
 
-    return response.data
+        return response.data
+    } catch (error) {
+        const responseData = error.response?.data
+        if (responseData instanceof Blob) {
+            try {
+                const errorPayload = JSON.parse(await responseData.text())
+                if (typeof errorPayload.message === "string") {
+                    error.userMessage = errorPayload.message
+                }
+            } catch {
+                // Non-JSON error responses retain the generic download message.
+            }
+        }
+        throw error
+    }
 }

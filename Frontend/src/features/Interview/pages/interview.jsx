@@ -315,6 +315,7 @@ export default function Interview() {
     const [expandedQuestions, setExpandedQuestions] = useState({});
     const [completedTasks, setCompletedTasks] = useState({});
     const [isDownloadingResume, setIsDownloadingResume] = useState(false);
+    const [resumeDownloadError, setResumeDownloadError] = useState("");
     const { report, loading, reportError } = useInterview()
     const { interviewId } = useParams();
 
@@ -322,6 +323,7 @@ export default function Interview() {
         if (!interviewId || isDownloadingResume) return;
 
         setIsDownloadingResume(true);
+        setResumeDownloadError("");
         try {
             const pdfBlob = await downloadResumePdf(interviewId);
             const downloadUrl = window.URL.createObjectURL(pdfBlob);
@@ -334,7 +336,7 @@ export default function Interview() {
             window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
         } catch (error) {
             console.error("Failed to download resume PDF:", error);
-            window.alert("Could not download the resume PDF. Please try again.");
+            setResumeDownloadError(error.userMessage || "Could not download the resume PDF. Please try again.");
         } finally {
             setIsDownloadingResume(false);
         }
@@ -589,6 +591,11 @@ export default function Interview() {
                                     {isDownloadingResume ? <LoaderCircle size={17} className="animate-spin" /> : <Download size={17} />}
                                     {isDownloadingResume ? "Preparing PDF..." : "Download Tailored Resume"}
                                 </button>
+                                {resumeDownloadError && (
+                                    <p role="alert" aria-live="assertive" className="mt-3 text-center text-sm font-medium text-[#b42348]">
+                                        {resumeDownloadError}
+                                    </p>
+                                )}
                             </div>
                         </section>
 

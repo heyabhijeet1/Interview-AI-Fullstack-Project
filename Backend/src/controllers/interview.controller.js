@@ -2,6 +2,25 @@ const pdfParse = require("pdf-parse")
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
 
+function respondToAiServiceError(res, error, action) {
+    const status = Number(error.status || error.statusCode)
+    const errorDetails = `${error.message || ""} ${error.error?.status || ""}`
+    const quotaExceeded = status === 429 || /RESOURCE_EXHAUSTED|quota exceeded|daily quota/i.test(errorDetails)
+
+    if (quotaExceeded) {
+        return res.status(429).json({
+            message: `The AI service has reached its current usage limit, so we can't ${action} right now. Please try again after the limit resets.`
+        })
+    }
+
+    if (status === 503 || status === 502) {
+        return res.status(503).json({
+            message: `The AI service is temporarily unavailable, so we can't ${action} right now. Please try again in a few minutes.`
+        })
+    }
+
+    return null
+}
 
 
 
@@ -18,11 +37,18 @@ async function generateInterViewReportController(req, res) {
         resumeText = resumeContent.text
     }
 
-    const interViewReportByAi = await generateInterviewReport({
-        resume: resumeText,
-        selfDescription,
-        jobDescription
-    })
+    let interViewReportByAi
+    try {
+        interViewReportByAi = await generateInterviewReport({
+            resume: resumeText,
+            selfDescription,
+            jobDescription
+        })
+    } catch (error) {
+        const response = respondToAiServiceError(res, error, "generate your report")
+        if (response) return response
+        throw error
+    }
 
     const interviewReport = await interviewReportModel.create({
         user: req.user.id,
@@ -100,7 +126,14 @@ async function generateResumePdfController(req, res) {
 
     const { resume, jobDescription, selfDescription } = interviewReport
 
-    const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
+    let pdfBuffer
+    try {
+        pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
+    } catch (error) {
+        const response = respondToAiServiceError(res, error, "generate your tailored resume PDF")
+        if (response) return response
+        throw error
+    }
 
     res.set({
         "Content-Type": "application/pdf",
