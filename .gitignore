@@ -1,0 +1,46 @@
+# Environment files and secrets. Keep only safe example templates in Git.
+.env
+.env.*
+!.env.example
+!.env.*.example
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+# Dependencies and generated build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/build/
+**/coverage/
+**/.vite/
+**/.cache/
+
+# Logs and local runtime data
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.pid
+*.seed
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+
+# Private keys, certificates, and cloud credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*credentials*.json
+
+# Local editor / OS metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
