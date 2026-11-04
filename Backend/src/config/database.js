@@ -2,12 +2,14 @@ const mongoose = require('mongoose')
 require('dotenv').config()
 
 async function connectDB(){
-    try{
-        await mongoose.connect(process.env.MONGO_URI)
-    console.log("connected to database...")
-    }catch(err){
-        console.log(err)
+    if (!process.env.MONGO_URI) {
+        throw new Error('MONGO_URI is not configured')
     }
+
+    await mongoose.connect(process.env.MONGO_URI, {
+        serverSelectionTimeoutMS: 10000
+    })
+    console.log("connected to database...")
 }
 
 module.exports=connectDB

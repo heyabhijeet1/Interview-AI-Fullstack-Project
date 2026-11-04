@@ -13,28 +13,28 @@ const api = axios.create({
 export async function register({username, email, password}){
     const response = await api.post('/api/auth/register',{
         username, email, password
-    })
+    }, { timeout: 15000 })
     return response.data
 }
 
 export async function login({email, password}){
     const response = await api.post('/api/auth/login',{
         email, password
-    })
+    }, { timeout: 15000 })
     return response.data
 }
 
 export async function startGuestSession() {
-    const response = await api.post('/api/auth/guest')
+    const response = await api.post('/api/auth/guest', {}, { timeout: 15000 })
     return response.data
 }
 
 export async function logout() {
-    const response = await api.get('/api/auth/logout')
+    const response = await api.get('/api/auth/logout', { timeout: 15000 })
     return response.data
 }
 
 export async function getMe() {
-    const response = await api.get('/api/auth/get-me')
+    const response = await api.get('/api/auth/get-me', { timeout: 15000 })
     return response.data
 }
