@@ -5,8 +5,9 @@ This project deploys as a Vite frontend and an Express API. Configure each servi
 ## Backend service
 
 - Root directory: `Backend`
-- Install command: `npm install`
+- Build command: `npm install && npm run build`
 - Start command: `npm start`
+- The build command installs Puppeteer's Chrome browser, which the API needs to generate PDF files.
 - Set `PORT` only if your provider does not set it automatically. The server listens on `process.env.PORT`, falling back to `3000` for local development, and binds to `0.0.0.0`.
 - Set `NODE_ENV=production`, `MONGO_URI`, `JWT_SECRET`, and `GOOGLE_GENAI_API_KEY` in the provider's environment settings.
 - Set `CLIENT_URL` to the deployed frontend's origin, such as `https://app.example.com` (no trailing slash). For multiple frontends, use comma-separated `CLIENT_URLS` instead.
